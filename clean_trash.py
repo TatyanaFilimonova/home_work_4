@@ -9,6 +9,7 @@ import psutil
 import os
 import threading
 
+# transliterator
 
 def normalize (translate_line):
    map = {ord('а'): 'a', ord('А'): 'A',
@@ -48,6 +49,7 @@ def normalize (translate_line):
    reg = re.compile ('[^A-Za-z0-9 ]')
    return reg.sub('_',translated).strip()
 
+# logic of file operations
 
 def parse_file(i,path, name):
    try:
@@ -57,23 +59,22 @@ def parse_file(i,path, name):
          if suffix in extensions[f]:
             f_type = f
             break
+      new_path = str(path)+'\\' + f_type + '\\'
+      new_name = str(path)+'\\' + name
+      if not Path(new_path).exists():
+         Path(new_path).mkdir()
       if f_type == 'archives':
-                   if not Path(str(path)+'\\'+f_type+'\\').exists():
-                      Path(str(path)+'\\'+f_type+'\\').mkdir()
-                   i = i.replace(str(path)+'\\'+name)
-                   shutil.unpack_archive(str(path)+'\\'+name,
-                        str(path)+'\\'+f_type+'\\'+i.stem+'\\')
-                   i.unlink()          
-      elif f_type == 'unknown':
-         i.replace(str(path)+'\\'+name)
+         i = i.replace(new_name)
+         shutil.unpack_archive(new_name, new_path + i.stem + '\\')
+         i.unlink()          
       else:
-         if not Path(str(path)+'\\'+f_type+'\\').exists():
-            Path(str(path)+'\\'+f_type+'\\').mkdir()
-         i.replace(str(path)+'\\'+f_type+'\\'+name)   
+         i.replace(new_path + name)   
    except:
       print("Unexpected error:", sys.exc_info()[0])
       print("Current path {}".format(i))
 
+# function with concurrent magic, ThreadExecutor is used     
+      
 def parse_folder(path, workers):
    try:  
       futures =[]
@@ -95,6 +96,7 @@ def parse_folder(path, workers):
       print("Couldn't do sorting well")
       print("Unexpected error:", sys.exc_info()[0])
             
+# dictionary with known file exstentions
 
 extensions = {
     'images' :  ('JPEG', 'PNG', 'JPG', 'SVG', 'TIFF', 'GIF', 'PSD', 'CDR', 'AI'),
@@ -117,14 +119,13 @@ if __name__ == '__main__':
    destination = shutil.copytree(src, dest)
    t = time.time()
    parse_folder_(Path(dest))
-   print("Folder is sorted without threading           in {:.3f} sec."
+   print("Folder is sorted without threading          in {:.3f} sec."
          .format(time.time()-t))
 
-   for workers in range(2,5):
+   for workers in range(4,5):
       shutil.rmtree(dest)
       destination = shutil.copytree(src, dest)     
       t = time.time()
       parse_folder(Path(dest), workers)
       print("Folder is sorted with max_workers param = {} in {:.3f} sec."
          .format(workers, (time.time() - t)))
-   
