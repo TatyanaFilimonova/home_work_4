@@ -73,7 +73,7 @@ def parse_file(i,path, name):
       print("Unexpected error:", sys.exc_info()[0])
       print("Current path {}".format(i))
 
-# function with concurrent magic, ThreadExecutor is used     
+# function with concurrent magic, ThreadPoolExecutor is used     
       
 def parse_folder(path, workers):
    try:  
