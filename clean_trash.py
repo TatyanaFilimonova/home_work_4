@@ -49,7 +49,7 @@ def normalize (translate_line):
    return reg.sub('_',translated).strip()
 
 
-def parse_file(i,path, name, counter):
+def parse_file(i,path, name):
    try:
       suffix = i.suffix.upper()[1:]
       f_type = 'unknown'
@@ -72,21 +72,12 @@ def parse_file(i,path, name, counter):
          i.replace(str(path)+'\\'+f_type+'\\'+name)   
    except:
       print("Unexpected error:", sys.exc_info()[0])
-      print("Current path {}, counter = {}".format(i, counter))
-
-def save_file(i, path):
-   i.replace(path)
-
-def unpack(i, path1, path2):
-   shutil.unpack_archive(path1, path2)
-   i.unlink()
-
+      print("Current path {}".format(i))
 
 def parse_folder(path, workers):
    try:  
       futures =[]
       thread_list=[]
-      counter = 0
       with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
          for i in path.iterdir():
             name = normalize(i.stem)+i.suffix
@@ -97,7 +88,7 @@ def parse_folder(path, workers):
                    i = i.replace(str(path)+'\\'+name)
                    futures.append(executor.submit(parse_folder, i, workers))                   
             else:
-               parse_file(i, path, name, counter)
+               parse_file(i, path, name)
          for future in futures:
               future.result()
    except:
@@ -109,7 +100,7 @@ extensions = {
     'images' :  ('JPEG', 'PNG', 'JPG', 'SVG', 'TIFF', 'GIF', 'PSD', 'CDR', 'AI'),
     'video' :  ('AVI', 'MP4', 'MOV', 'MKV'),
     'documents' :  ('DOC', 'DOCX', 'TXT', 'PDF', 'XLSX', 'PPTX', 'PDF',
-                    'XLS', 'DOCX', 'CSV', 'PPT', 'ACCDB'),
+                    'XLS', 'DOCX', 'CSV', 'PPT', 'ACCDB', 'RTF'),
     'music': ('MP3', 'OGG', 'WAV', 'AMR'),
     'archives':  ('ZIP', 'GZ', 'TAR'),
     'python': ('PY'),
