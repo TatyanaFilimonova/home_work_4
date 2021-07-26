@@ -117,7 +117,7 @@ if __name__ == '__main__':
    destination = shutil.copytree(src, dest)
    t = time.time()
    parse_folder_(Path(dest))
-   print("Folder is sorted without threading in {} sec."
+   print("Folder is sorted without threading           in {:.3f} sec."
          .format(time.time()-t))
 
    for workers in range(2,5):
@@ -125,6 +125,6 @@ if __name__ == '__main__':
       destination = shutil.copytree(src, dest)     
       t = time.time()
       parse_folder(Path(dest), workers)
-      print("Folder is sorted with max_workers param = {} in {} sec"
+      print("Folder is sorted with max_workers param = {} in {:.3f} sec."
          .format(workers, (time.time() - t)))
    
